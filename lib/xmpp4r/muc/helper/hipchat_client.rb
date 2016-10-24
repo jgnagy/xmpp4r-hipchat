@@ -3,13 +3,15 @@ module Jabber
     class HipchatClient
       attr_reader :my_jid
 
-      def initialize jid, conference_host = nil
+      def initialize jid, conference_host = nil, options = {}
         @my_jid     = JID.new(jid)
 
         @presence   = HipChat::Presence.new(my_jid)
         @message    = HipChat::Message.new(my_jid)
 
         @conference_host = conference_host
+        @connect_host    = options[:connect_host]
+        @connect_port    = options[:connect_port] || 5222
       end
 
       def name
@@ -76,7 +78,7 @@ module Jabber
       ## Connection
 
       def connect password
-        stream.connect
+        @connect_host ? stream.connect(@connect_host, @connect_port) : stream.connect
         Jabber::debuglog "Connected to stream"
         stream.auth(password)
         Jabber::debuglog "Authenticated"
